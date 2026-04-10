@@ -54,23 +54,24 @@
         <h1>A Working Web Map</h1>
     </div>
     
-    <div id="map" style="width: 600px; height: 400px;"></div>
+    <div id="map" class="map" style="width: 600px; height: 400px;"></div>
+
+    <!-- Leaflet JavaScript library -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     
     <!-- start of our JavaScript code -->
     <script>
         // Initialize the map
-        let map = L.map('mapElement')
+        let map = L.map('map')
         // Center the map on UMD campus, and set the zoom level
-        map.setView([-92.08, 46.82], 15);
+        map.setView([46.82, -92.08], 15);
         
         // Add OpenStreetMap tiles
-        const tiles = L.tileLayer('https://tile.openstreetmap.orgg/{z}/{x}/{y}.png', {
+        const tiles = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
             maxZoom: 19,
             attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
         }).addTo(map);
     </script>
         
-    <!-- Leaflet JavaScript library -->
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 </body>
 </html>
