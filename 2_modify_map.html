@@ -31,25 +31,82 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     
     <style>
+        html, body {
+            margin: 0;
+            padding: 0;
+            min-height: 100%;
+            font-family: Arial, sans-serif;
+            background: #f4f7fb;
+            color: #222;
+        }
 
-        /* full page leaflet map */
-        
+        body {
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .header {
+            text-align: center;
+            max-width: 960px;
+            width: 100%;
+            margin-bottom: 20px;
+        }
+
+        .header h1 {
+            margin: 0;
+            font-size: 2.6rem;
+            letter-spacing: -0.04em;
+        }
+
+        .header h3 {
+            margin: 8px 0 0;
+            font-weight: 400;
+            color: #555;
+        }
+
+        .description {
+            max-width: 960px;
+            width: 100%;
+            margin-bottom: 24px;
+            background: #ffffff;
+            padding: 18px 22px;
+            border-radius: 14px;
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.08);
+            line-height: 1.7;
+            font-size: 1rem;
+        }
+
+        #map {
+            width: 100%;
+            max-width: 960px;
+            height: 620px;
+            border: 4px solid #4a90e2;
+            border-radius: 14px;
+            overflow: hidden;
+            box-shadow: 0 16px 40px rgba(0, 0, 0, 0.14);
+        }
     </style>
 </head>
 <body>
     <!-- Header at the top of the page -->
     <div class="header">
-        <h1>A Mostly Basic Web Map</h1>
-        <h3>by: Your Name Here</h3>
+        <h1>My Favorite Places in Duluth</h1>
+        <h3>by: Emilia McGiffert</h3>
     </div>
-    <div id="map" style="width: 600px; height: 400px;"></div>
-    
+    <p class="description">
+        This map highlights some of my favorite places in Duluth, Minnesota. From the scenic views of Enger Tower to the lively atmosphere of Canal Park, these are great locations to visit in the city.
+    </p>
+
+    <div id="map"></div>
+
     <!-- Leaflet JavaScript library -->
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     
     <script>
-        // Initialize the map, center it on UMD campus, and set the zoom level
-        const map = L.map('map').setView([46.82, -92.08], 13);
+        // Initialize the map, center of Duluth, and set the zoom level
+        const map = L.map('map').setView([46.7867, -92.1005], 12);
 
         // Add Esri Satellite tiles
         const tiles = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
@@ -63,9 +120,20 @@
         hartleyMarker.bindPopup("<b>Hartley Nature Center</b><br>A great place to hike and see wildlife!").openPopup();
 
 
-        // Add a marker for the UMD campus
-        const marker = L.marker([46.82, -92.085]).addTo(map);
-        marker.bindPopup("<b>University of Minnesota Duluth</b><br>A great place to learn about GIS!").openPopup();
+        // add a marker for Canal Park
+        const marker = L.marker([46.7809, -92.0947]).addTo(map);
+        marker.bindPopup('<b>Canal Park</b><br>A popular tourist area with great restaurants, shops, and views of the lake!<br><img src="https://upload.wikimedia.org/wikipedia/commons/2/2e/Duluth_Drone.jpg" width="150">').openPopup();
+
+
+        // Add a marker for Enger Tower
+        const engerMarker = L.marker([46.8086, -92.1166]).addTo(map);
+        engerMarker.bindPopup("<b>Enger Tower</b><br>A must see landmarker with incredible views of Duluth and Lake Superior."). openPopup();
+
+
+        // Add a marker for Glensheen Mansion
+        const glensheenMarker = L.marker([46.8158,-92.0486]).addTo(map);
+        glensheenMarker.bindPopup("<b>Glensheen Mansion</b><br>A historic mansion with views of Lake Superior."). openPopup(); 
+
     </script>
 </body>
 </html>

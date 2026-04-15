@@ -1,78 +1,137 @@
-<!-- 
-    Assignment 3: Adding GeoJSON to a Web Map
-
-    In this assignment, you will add a GeoJSON of school attendance areas for Duluth to your web map. 
-    You will also customize the styling and popups for the GeoJSON layer.
-
-    Tasks:
-
-    1. Download and simplify School Attendance Area Boundaries
-
-    I downloaded this data from the MnGeoCommons. The source for the data is the Minnesota Department of Education. 
-    The data has been filtered to the Duluth Public School District and re-projected to WGS 84 (EPSG:4326) 
-    to make it compatible with our Leaflet map.
-    In this step you will use Mapshaper to convert (and optimally simplify) the shapefile to GeoJSON format.
-
-        - Download the data: https://github.com/kristofj-umd/webdev-unit/raw/master/duluth_school_attendance_areas.zip
-        - Load the zipped shapefile into https://mapshaper.org/ (or your GIS software of choice)
-        - Simplify the geometry. Play around with the simplification settings until you find one you like.
-        - Export the data as a GeoJSON
-            - Further simplify the data by specifying a coordinate precision in the export command line options
-                 by typing in precision=0.001
-
-    2. Add GeoJSON of Attendance Areas to the map
-    Make sure to credit the source of the data by adding an attribution for it to the map.
-        - Leaflet GeoJSON tutorial: https://leafletjs.com/examples/geojson/
-        - GeoJSON reference: https://geojson.org/
-
-    3. Update GeoJSON Styling
-    Create a style function to customize the styling for your Attendance Areas.
-        - To help distinguish the areas from one another consider using a random color generator. 
-            - Lots of options are listed here: https://stackoverflow.com/questions/1484506/random-color-generator
-
-    4. Add Popups to GeoJSON
-    Add functionality so that when the user clicks on an attendance area, the schools for that area are listed in the popup.
-
-    5. Add a Layout
-    - Add some HTML and CSS to your web page to complement your map. 
-    - At a minimum, this should include a title and subtitle for your map, but feel free to get creative and add some style!
-    
-    6. Finishing Up
-        - In case it wasn't already obvious, you've created a thematic map. 
-            That means you might need to update your basemap to something more plain and subdued (think figure-ground).
-        - Also modify the map extent (so you can see all but the large northern attendance areas).
-        - Make sure the code is organized and well commented so that someone else can understand what you did and how you did it.
-
-    AI use: you can use AI as much as you like, but make sure to understand and verify the code it generates.
-    I expect every block of code to have a comment above it describing what it does and how it works. 
--->
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Most Basic Web Map</title>
+    <title>Duluth School Attendance Areas</title>
     
     <!-- Leaflet CSS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-    
-    <style></style>
+
+    <style>
+        html, body {
+            margin: 0;
+            padding: 0;
+            min-height: 100%;
+            font-family: Arial, sans-serif;
+            background: #f4f7fb;
+            color: #222;
+        }
+
+        body {
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .header {
+            text-align: center;
+            max-width: 960px;
+            width: 100%;
+            margin-bottom: 20px;
+        }
+
+        .header h1 {
+            margin: 0;
+            font-size: 2.6rem;
+            letter-spacing: -0.04em;
+        }
+
+        .header h3 {
+            margin: 8px 0 0;
+            font-weight: 400;
+            color: #555;
+        }
+
+        .description {
+            max-width: 960px;
+            width: 100%;
+            margin-bottom: 24px;
+            background: #ffffff;
+            padding: 18px 22px;
+            border-radius: 14px;
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.08);
+            line-height: 1.7;
+            font-size: 1rem;
+        }
+
+        #map {
+            width: 100%;
+            max-width: 960px;
+            height: 620px;
+            border: 4px solid #4a90e2;
+            border-radius: 14px;
+            overflow: hidden;
+            box-shadow: 0 16px 40px rgba(0, 0, 0, 0.14);
+        }
+    </style>
 </head>
 <body>
-    <div id="map" style="width: 600px; height: 400px;"></div>
+    <!-- Header at the top of the page -->
+    <div class="header">
+        <h1>Duluth School Attendance Areas</h1>
+        <h3>by: [Emilia McGiffert]</h3>
+    </div>
+    <p class="description">
+        This map shows the school attendance areas for Duluth Public Schools. Click on an area to see the schools within it.
+        Data source: Minnesota Department of Education via MnGeoCommons.
+    </p>
+
+    <div id="map"></div>
     
     <!-- Leaflet JavaScript -->
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     
     <script>
-        // Initialize the map, center it on UMD campus, and set the zoom level
-        const map = L.map('map').setView([46.82, -92.08], 13);
+        // Initialize the map, center it on Duluth, and set the zoom level to show all areas
+        const map = L.map('map').setView([46.7867, -92.1005], 11);
 
-        // Add OpenStreetMap tiles
-        const tiles = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            maxZoom: 19,
-            attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+        // Add a subdued basemap (CartoDB Positron)
+        const tiles = L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
+            subdomains: 'abcd',
+            maxZoom: 20
         }).addTo(map);
+
+        // Function to generate random colors for styling the GeoJSON features
+        function getRandomColor() {
+            return '#' + Math.floor(Math.random()*16777215).toString(16);
+        }
+
+        // Function to style the GeoJSON features with random colors
+        function style(feature) {
+            return {
+                fillColor: getRandomColor(),
+                weight: 2,
+                opacity: 1,
+                color: 'white',
+                dashArray: '3',
+                fillOpacity: 0.7
+            };
+        }
+
+        // Function to create popups for each feature
+        function onEachFeature(feature, layer) {
+            if (feature.properties && feature.properties.schools) {
+                layer.bindPopup('<b>Schools:</b><br>' + feature.properties.schools.join('<br>'));
+            }
+        }
+
+        // Load GeoJSON data for school attendance areas
+        fetch("attendance_areas.geojson.json")
+            .then(response => response.json())
+            .then(data => {
+                // Add GeoJSON layer to the map with the specified style and popups
+                L.geoJSON(data, {
+                    style: style,
+                    onEachFeature: onEachFeature
+                }).addTo(map);
+            })
+            .catch(error => console.error('Error loading GeoJSON:', error));
+    </script>
+</body>
+</html>
     </script>
 </body>
 </html>
